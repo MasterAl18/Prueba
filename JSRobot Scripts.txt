@@ -1,0 +1,249 @@
+Nivel 1-2:
+
+function init(robot) {
+	// your code goes here
+}
+
+function loop(robot) {
+	robot.action = {type: 'move' , amount: 40};
+}
+
+
+Nivel 4:
+
+function init(robot) {
+	pasos = 0;
+}
+
+function loop(robot) {
+	if (pasos != 8) {
+		robot.move(40);
+	} 
+	else {
+		robot.jump(10);
+	}
+	pasos++;
+	console.log(pasos);
+}
+
+Propuesta:
+
+function loop(robot) {
+	if (400 < robot.info().x  && robot.info().x < 500) {
+		robot.action = {type: 'jump', amount: 10};
+	} else {
+		robot.action = {type: 'move', amount: 40};
+	}
+}
+
+Nivel 5:
+
+function init(robot) {
+	// your code goes here
+}
+
+function loop(robot) {
+	if ((robot.info().x > 350 && robot.info().x < 500)||(robot.info().x > 550 && robot.info().x < 680)){
+		robot.action = {type: "jump" , amount: 10};
+	}
+	else {
+		robot.action = {type: "move" , amount: 40};
+	}
+}
+
+Propuesta:
+
+function loop(robot) {
+	let robotX = robot.info().x;
+	let landmarks = [360, 500, 560, 760];
+  
+  	robot.action = {type: 'move', amount: 40};
+ 	if (landmarks[0] < robotX && robotX < landmarks[1] ||
+		 landmarks[2] < robotX && robotX < landmarks[3]) {
+      	robot.action = {type: 'jump', amount: 10};
+	}
+}
+
+Nivel 6:
+
+function init(robot) {
+	monedas = 0
+}
+
+function loop(robot) {
+	if (monedas != robot.info().coins){
+		robot.turn();
+		monedas++
+	}
+	else if (robot.properties.facing == 1) {
+		robot.action = {type: "move" , amount:40}
+	}
+	else {
+		robot.action = {type: "move" , amount:-40}
+	}
+}
+
+Propuesta:
+function loop(robot) {
+	robot.action = {type: 'move', amount: 40};
+	if (robot.info().coins % 2 == 1) {
+		robot.action.amount = -40;
+	}
+}
+
+properties: {"onGround":true, "facing":1}
+
+Nivel 7:
+
+function init(robot) {
+	monedas = 0
+	energia = 100
+	saltoInicial = false
+}
+
+function loop(robot) {
+	if (monedas != robot.info().coins){
+		robot.jump(10);
+		monedas++
+	}
+	else if (robot.info().energy == energia && saltoInicial){
+		robot.jump(10);
+	}
+	else if (robot.info().energy == energia && !saltoInicial){
+		robot.action = {type: "move", amount:40}
+		saltoInicial = true
+	}
+	else {
+		robot.action = {type: "move", amount:40}
+
+Propuesta:
+
+function init(robot) {
+	robot.oldCoins = 0;
+	robot.oldEnergy = 100;
+}
+
+function loop(robot) {
+	robot.action = {type: 'move', amount: 40};
+	if (robot.info().coins > robot.oldCoins ||
+		 robot.info().energy > robot.oldEnergy) {
+		robot.action = {type: 'jump', amount: 10};
+	}
+	robot.oldCoins = robot.info().coins;
+	robot.oldEnergy = robot.info().energy;
+} 
+Nivel 8:
+
+function init(robot) {
+	
+}
+
+function loop(robot) {
+	robot.jump(30);
+	if (robot.info().x < 900){
+		robot.move(40);
+		}
+}
+
+Propuesta:
+function init(robot) {
+	robot.iterationsAfterCoin = 0;
+}
+
+function loop(robot) {
+	if (robot.iterationsAfterCoin > 4) {
+		robot.action = {type: 'jump', amount: 10};
+	}
+	if (robot.info().coins > 0) {
+		robot.iterationsAfterCoin++;
+	}
+}
+
+Nivel 9:
+
+function init(robot) {
+	disparosExtra = 0
+	iteraciones = 0
+}
+
+function loop(robot) {
+	if (robot.info().coins < 1){
+		robot.shoot();
+		}
+	else if (disparosExtra < 7){
+		robot.shoot();
+		disparosExtra++;
+	}
+	else if (iteraciones < 4){
+		robot.move(40);
+		iteraciones++;
+	}
+	else if (iteraciones == 4){
+		robot.jump(10);
+		iteraciones++;
+	}
+	else if (robot.info().y < 200 && iteraciones >= 5 && robot.properties.onGround){
+		robot.jump(0);
+		iteraciones++;
+	}
+	else if (robot.info().y > 200){
+		robot.move(40);
+	}
+	console.log(iteraciones);
+}
+
+Propuesta:
+
+Dos archivos ---> level-9 y action-queue
+
+action-queue ==> 
+
+module.exports = {
+  	queue: [],
+  	push: function(item, t){
+		t = t || 1;
+    	for (let i = 0; i < t; i++) {
+			this.queue.push(item);
+      }
+	},
+	pop: function(){
+     	if(this.empty()){
+			return null;
+		}
+     	return this.queue.splice(0, 1)[0];
+	},
+	peek: function(){
+     	if(this.empty()){
+			return null;
+		}
+     	return this.queue[0];
+	},
+	clear: function(){
+		this.queue = [];
+	},
+	size: function(){
+		return this.queue.length;
+	},
+	empty: function(){
+		return (this.size() === 0);
+	},
+	log: function(){console.log(this.queue);}
+};
+
+level-9 ==>
+
+function init(robot) {
+	robot.actionQueue = require('action-queue');
+  	robot.actionQueue.push({type: 'shoot'}, 12);
+  	robot.actionQueue.push({type: 'move', amount: 40}, 4);
+  	robot.actionQueue.push({type: 'jump', amount: 10});
+  	robot.actionQueue.push({type: 'wait'}, 5);
+  	robot.actionQueue.push({type: 'jump'});
+  	robot.actionQueue.push({type: 'move', amount: 40}, 6);
+}
+
+function loop(robot) {
+  	if (!robot.actionQueue.empty()) {
+		robot.action = robot.actionQueue.pop();
+   }
+}
